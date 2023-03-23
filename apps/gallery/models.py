@@ -1,3 +1,47 @@
+from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+from django_countries.fields import CountryField
+from phonenumber_field.modelfields import PhoneNumberField
 
-# Create your models here.
+from apps.common.models import TimeStampedUUIDModel
+
+User = get_user_model()
+
+class Albums(TimeStampedUUIDModel):
+    name = models.CharField(_("Album Name"), max_length=255)
+    description = models.TextField(_("Album Description"), blank=True, null=True)
+    image = models.ImageField(_("Album"), upload_to="albums/")
+    is_public = models.BooleanField(_("Is Public"), default=False)
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="albums", related_query_name="album", verbose_name=_("Owner")
+    )
+
+    class Meta:
+        verbose_name = _("Album")
+        verbose_name_plural = _("Albums")
+        ordering = ["name"]
+
+
+    def __str__(self):
+        return self.name
+    
+class Photos(TimeStampedUUIDModel):
+    name = models.CharField(_("Photo Name"), max_length=255)
+    description = models.TextField(_("Photo Description"), blank=True, null=True)
+    image = models.ImageField(_("Photo"), upload_to="photos/")
+    is_public = models.BooleanField(_("Is Public"), default=False)
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="photos", verbose_name=_("Owner")
+    )
+    album = models.ForeignKey(
+        Albums, on_delete=models.CASCADE, related_name="photos", related_query_name="photo", verbose_name=_("Albums")
+    )
+
+    class Meta:
+        verbose_name = _("Photo")
+        verbose_name_plural = _("Photos")
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
