@@ -1,32 +1,28 @@
-import React from 'react'
-import { BrowserRouter } from 'react-router-dom'
-import AddAlbum from './components/albums/AddAlbum'
-import AlbumList from './components/albums/AlbumList'
-import AlbumDetail from './components/albums/AlbumDetail'
-import PhotoDetail from './components/photos/PhotoDetail'
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Link } from 'react-router-dom';
+import AlbumViews from './components/albums/AlbumViews';
+import PhotosView from './components/photos/PhotosView';
 
-const Greet = () => {
+const Apps = () => {
   return (
-    <div>Greet. This is a simple greet component</div>
-  )
-}
+    <Router>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/albums">Albums</Link>
+          </li>
+          <li>
+            <Link to="/photos">Photos</Link>
+          </li>
+        </ul>
+      </nav>
+      <Routes>
+        <Route path="/albums" element={<AlbumViews />} />
+        <Route path="/photos" element={<PhotosView />} />
+      </Routes>
+    </Router>
+  );
+};
 
-
-function App() {
-
-  return (
-    <div className="App">
-      <BrowserRouter>
-        <AlbumList />
-        <AddAlbum />
-        <AlbumDetail />
-        <PhotoDetail />
-      </BrowserRouter>
-
-     
-      <Greet />
-    </div>
-  )
-}
-
-export default App
+export default Apps;

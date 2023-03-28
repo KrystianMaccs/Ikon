@@ -1,53 +1,63 @@
-from rest_framework import generics, permissions
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from .models import Albums, Photos
 from .serializers import AlbumsSerializer, PhotosSerializer
 
 
-class AlbumsListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Albums.objects.all()
-    serializer_class = AlbumsSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+class AlbumsView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    def get(self, request):
+        albums = Albums.objects.filter(owner=request.user)
+        serializer = AlbumsSerializer(albums, many=True)
+        return Response(serializer.data)
 
-
-class AlbumsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Albums.objects.all()
-    serializer_class = AlbumsSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def perform_update(self, serializer):
-        if serializer.instance.owner != self.request.user:
-            raise permissions.PermissionDenied("You are not the owner of this album.")
-        serializer.save()
+    def post(self, request):
+        serializer = AlbumsSerializer(data=request.data)
+        if serializer.is_valid():
+            album = serializer.save(owner=request.user)
+            return Response(AlbumsSerializer(album).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PhotosListCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = PhotosSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+class PhotosView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        album_id = self.kwargs.get('album_id')
-        return Photos.objects.filter(album__id=album_id)
+    def get(self, request, album_id=None):
+        if album_id:
+            photos = Photos.objects.filter(album_id=album_id, album__owner=request.user)
+        else:
+            photos = Photos.objects.filter(owner=request.user)
+        serializer = PhotosSerializer(photos, many=True)
+        return Response(serializer.data)
 
-    def perform_create(self, serializer):
-        album_id = self.kwargs.get('album_id')
-        album = Albums.objects.get(id=album_id)
-        if album.owner != self.request.user:
-            raise permissions.PermissionDenied("You are not the owner of this album.")
-        serializer.save(owner=self.request.user, album=album)
+    def post(self, request, album_id=None):
+        if not album_id:
+            return Response({'error': 'Album ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        album = Albums.objects.get(pk=album_id, owner=request.user)
+        serializer = PhotosSerializer(data=request.data)
+        if serializer.is_valid():
+            photo = serializer.save(owner=request.user, album=album)
+            return Response(PhotosSerializer(photo).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def put(self, request, pk):
+        photo = Photos.objects.get(pk=pk)
+        if photo.owner != request.user:
+            return Response({'error': 'You are not authorized to update this photo.'}, status=status.HTTP_403_FORBIDDEN)
+        serializer = PhotosSerializer(photo, data=request.data)
+        if serializer.is_valid():
+            photo = serializer.save()
+            return Response(PhotosSerializer(photo).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class PhotosRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Photos.objects.all()
-    serializer_class = PhotosSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def perform_update(self, serializer):
-        if serializer.instance.owner != self.request.user:
-            raise permissions.PermissionDenied("You are not the owner of this photo.")
-        serializer.save()
+    def delete(self, request, pk):
+        photo = Photos.objects.get(pk=pk)
+        if photo.owner != request.user:
+            return Response({'error': 'You are not authorized to delete this photo.'}, status=status.HTTP_403_FORBIDDEN)
+        photo.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 

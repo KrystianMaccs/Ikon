@@ -1,10 +1,10 @@
 from django.urls import path
-from .views import AlbumsListCreateAPIView, AlbumsRetrieveUpdateDestroyAPIView,\
-                    PhotosListCreateAPIView, PhotosRetrieveUpdateDestroyAPIView
+from .views import AlbumsView, PhotosView
+
 
 urlpatterns = [
-    path('albums/', AlbumsListCreateAPIView.as_view(), name='album-list'),
-    path('albums/<int:pk>/', AlbumsRetrieveUpdateDestroyAPIView.as_view(), name='album-detail'),
-    path('albums/<int:album_id>/photos/', PhotosListCreateAPIView.as_view(), name='photo-list'),
-    path('photos/<int:pk>/', PhotosRetrieveUpdateDestroyAPIView.as_view(), name='photo-detail'),
+    path('albums/', AlbumsView.as_view(), name='albums'),
+    path('albums/<uuid:pk>/photos/', PhotosView.as_view(), name='album-photos'),
+    path('photos/', PhotosView.as_view(), name='photos'),
+    path('photos/<uuid:pk>/', PhotosView.as_view(), name='photo-detail'),
 ]
