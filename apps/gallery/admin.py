@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Albums, Photos
+from .models import Album, Photo
 
-admin.site.register(Albums)
-admin.site.register(Photos)
+admin.site.register(Album)
+admin.site.register(Photo)
