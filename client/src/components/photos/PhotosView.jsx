@@ -15,7 +15,7 @@ const PhotosView = ({ albumId }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(API, authorization, `/${albumId ? `?album_id=${albumId}` : ''}`);
+        const res = await axios.get(API, `/${albumId ? `?album_id=${albumId}` : ''}`);
         setPhotos(res.data);
       } catch (err) {
         console.error(err);
@@ -27,7 +27,7 @@ const PhotosView = ({ albumId }) => {
 
   const createPhoto = async (photoData) => {
     try {
-      const res = await axios.post(API, authorization, `/${albumId}/`, photoData);
+      const res = await axios.post(API, `/${albumId}/`, photoData);
       setPhotos([...photos, res.data]);
     } catch (err) {
       console.error(err);

@@ -10,6 +10,9 @@ from .serializers import AlbumsSerializer, PhotosSerializer
 
 
 class AlbumsView(APIView):
+    """
+    API endpoint that allows albums to be viewed or edited.
+    """
     serializer_class = AlbumsSerializer
 
     def get(self, request):
@@ -41,6 +44,9 @@ class AlbumsView(APIView):
 
 
 class AlbumsPhotosView(APIView):
+    """
+    API endpoint that allows photos to be viewed or edited.
+    """
     serializer_class = PhotosSerializer
 
     def get(self, request, *args, **kwargs):
