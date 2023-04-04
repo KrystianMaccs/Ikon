@@ -63,4 +63,3 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         if not instance.is_instructor:
             User.objects.create(user=instance)
-        
