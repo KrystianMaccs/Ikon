@@ -28,9 +28,7 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL=False
 
 SITE_NAME = 'Ikon'
-
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_CREDENTIALS = True
+SITE_URL = 'http://localhost:8000'
 
 # Application definition
 
@@ -48,34 +46,24 @@ SITE_ID = 1
 
 THIRD_PARTY_APPS = [
     "corsheaders",
-    "rest_framework",
-    "django_filters",
     "django_countries",
     "phonenumber_field",
+    'drf_yasg',
+    'rest_framework',
     'rest_framework_simplejwt',
-    "djoser",
+    'django_rest_passwordreset',
+    'django_filters',
+    'debug_toolbar',
 ]
 
 LOCAL_APPS = [
-    "apps.users",
-    "apps.common",
-    "apps.gallery",
+    "apps.users.apps.UsersConfig",
+    "apps.common.apps.CommonConfig",
+    "apps.gallery.apps.GalleryConfig",
 ]
 
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
-
-MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'social_django.middleware.SocialAuthExceptionMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
 
 ROOT_URLCONF = 'ikon.urls'
 
@@ -117,77 +105,122 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/2.2/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'Africa/Lagos'
-
-USE_I18N = True
-
-USE_L10N = True
-
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
-
-STATIC_URL = "/staticfiles/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIR = []
-MEDIA_URL = "/mediafiles/"
-MEDIA_ROOT = BASE_DIR / "mediafiles"
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-AUTH_USER_MODEL = "users.User"
-
-
-
+MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': (       
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@ikon'
+
+ROOT_URLCONF = 'ikon.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'ikon.wsgi.application'
+
+
+
+# Password validation
+# https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/4.1/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_TZ = True
+
+# Time in hours about how long the token is active
+DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = 6
+
+# Return 200 even if the user doesn't exist in the database
+DJANGO_REST_PASSWORDRESET_NO_INFORMATION_LEAKAGE = True
+
+# Allow password reset for a user that does not have a usable password
+DJANGO_REST_MULTITOKENAUTH_REQUIRE_USABLE_PASSWORD = True
+
 
 SIMPLE_JWT = {
-    "AUTH_HEADER_TYPES": (
-        "Bearer",
-        "JWT",
-    ),
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=120),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    #"SIGNING_KEY": config("SIGNING_KEY"),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'UPDATE_LAST_LOGIN': True,
 }
 
-DJOSER = {
-    "LOGIN_FIELD": "email",
-    "USER_CREATE_PASSWORD_RETYPE": True,
-    "USERNAME_CHANGED_EMAIL_CONFIRMATION": True,
-    "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
-    "SEND_CONFIRMATION_EMAIL": True,
-    "PASSWORD_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
-    "SET_PASSWORD_RETYPE": True,
-    "PASSWORD_RESET_CONFIRM_RETYPE": True,
-    "USERNAME_RESET_CONFIRM_URL": "email/reset/confirm/{uid}/{token}",
-    "ACTIVATION_URL": "activate/{uid}/{token}",
-    "SEND_ACTIVATION_EMAIL": True,
-    "SERIALIZERS": {
-        "user_create": "apps.users.serializers.CreateUserSerializer,",
-        "user": "apps.users.serializers.UserSerializer",
-        "current_user": "apps.users.serializers.UserSerializer",
-        "user_delete": "djoser.serializers.UserDeleteSerializer",
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "name": "Authorization",
+            "type": "apiKey",
+            "in": "header",
+        }
     },
+    "USE_SESSION_AUTH": False,
 }
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.1/howto/static-files/
+
+STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 
 import logging
