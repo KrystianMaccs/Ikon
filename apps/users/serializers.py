@@ -1,11 +1,8 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
-
-User = get_user_model()
-
+from apps.users.models import User
 
 
 class ConfirmEmailSerializer(serializers.ModelSerializer):
@@ -36,10 +33,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             {
                 "id": self.user.id,
                 "email": self.user.email,
+                "username": self.user.username,
                 "first_name": self.user.first_name,
                 "last_name": self.user.last_name,
                 "is_superuser": self.user.is_superuser,
                 "is_staff": self.user.is_staff,
+                "is_verified": self.user.is_verified
+
             }
         )
 
@@ -52,7 +52,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     # Meta class to specify the model and its fields to be serialized
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'password'] 
+        fields = ['id', 'email', 'username', 'first_name', 'last_name', 'password', ] 
 
     # Method to validate the email entered by the user
     def validate_email(self, value):
@@ -72,9 +72,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(
             email = validated_data['email'],
+            username=validated_data['username'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
             password=validated_data['password'],
+            is_verified=False
+
+
         )
         return user
     
@@ -83,10 +87,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'is_active']
-        
-    def get_first_name(self, obj):
-        return obj.first_name.title()
+        fields = ['id', 'email', 'username', 'first_name', 'last_name', 'is_active', 'is_verified']
 
-    def get_last_name(self, obj):
-        return obj.last_name.title()
+
+class RetrieveUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'username', 'first_name', 'last_name', 'is_active', 'is_verified']

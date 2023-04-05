@@ -8,8 +8,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from apps.users.serializers import (
- UserRegistrationSerializer, CustomTokenObtainPairSerializer, RetrieveUserSerializer,
-    ChangePasswordSerializer, ConfirmEmailSerializer
+ UserRegistrationSerializer, CustomTokenObtainPairSerializer,
+    ChangePasswordSerializer, ConfirmEmailSerializer, RetrieveUserSerializer
 )
 
 from apps.common import permissions as custom_permissions

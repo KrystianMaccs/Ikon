@@ -56,10 +56,3 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     msg = EmailMultiAlternatives(subject, email_html_message, from_email, [to_email])
     # msg.attach_alternative(email_html_message, "text/html")
     msg.send()
-
-
-@receiver(post_save, sender=get_user_model())
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        if not instance.is_instructor:
-            User.objects.create(user=instance)
