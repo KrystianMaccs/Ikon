@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions, status
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -10,13 +11,21 @@ from .serializers import ProfileSerializer, UpdateProfileSerializer
 
 class AgentListAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = Profile.objects.filter(is_agent=True)
-    serializer_class = ProfileSerializer
+    renderer_classes = [ProfileJSONRenderer]
+    
+    def get(self, request):
+        is_grapher = Profile.objects.filter(is_agent=True)
+        serializer = ProfileSerializer(is_agent, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-class TopAgentsListAPIView(generics.ListAPIView):
+class TopAgentAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = Profile.objects.filter(top_agent=True)
-    serializer_class = ProfileSerializer
+    renderer_classes = [ProfileJSONRenderer]
+    
+    def get(self, request):
+        top_grapher = Profile.objects.filter(top_grapher=True)
+        serializer = ProfileSerializer(top_grapher, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GetProfileAPIView(APIView):

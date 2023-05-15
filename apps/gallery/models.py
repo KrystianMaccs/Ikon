@@ -6,17 +6,19 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import TimeStampedUUIDModel
+from apps.profiles.models import Profile
+
 
 User = get_user_model()
 
 class Album(TimeStampedUUIDModel):
     name = models.CharField(_("Album Name"), max_length=255)
     description = models.TextField(_("Album Description"), blank=True, null=True)
+    photographer = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, related_name="profile", verbose_name=_("Photographer")
+    )
     image = models.ImageField(_("Album"), upload_to="albums/")
     is_public = models.BooleanField(_("Is Public"), default=False)
-    owner = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="albums", related_query_name="album", verbose_name=_("Owner")
-    )
 
     class Meta:
         verbose_name = _("Album")

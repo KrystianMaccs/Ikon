@@ -33,10 +33,10 @@ down-v:
 	docker compose down -v
 
 volume:
-	docker volume inspect estate-src_postgres_data
+	docker volume inspect ikon-src_postgres_data
 
-estate-db:
-	docker compose exec postgres-db psql --username=admin --dbname=estate
+ikon-db:
+	docker compose exec postgres-db psql --username=admin --dbname=ikon
 
 test:
 	docker compose exec api pytest -p no:warnings --cov=.
